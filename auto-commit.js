@@ -11,47 +11,37 @@ function run(cmd) {
   try {
     console.log("🚀 AUTO COMMIT RUNNING...");
 
-    // 🔥 stage everything (important)
     run("git add -A");
 
-    const diffFull = run("git diff --cached");
-    if (!diffFull) {
+    const status = run("git diff --cached --name-status");
+    if (!status) {
       console.log("No changes");
       return;
     }
 
-    const diff = diffFull.slice(0, 600);
+    const diff = run("git diff --cached").slice(0, 600);
     const files = run("git diff --cached --name-only");
 
-    // 🧠 SMART TYPE DETECTION
+    // 🧠 TYPE DETECT (STRONG)
     let type = "fix";
 
-    if (/\.(css|scss|sass)$/i.test(files)) {
-      type = "style";
-    }
-    else if (/\.(js|ts)$/i.test(files)) {
-      type = "feat";
-    }
-    else if (/error|bug|fix/i.test(diff)) {
-      type = "fix";
-    }
-    else if (/\.json/i.test(files)) {
-      type = "config";
-    }
-    else if (/\.md/i.test(files)) {
-      type = "docs";
-    }
+    if (status.includes("A")) type = "feat"; // new file
+    else if (status.includes("D")) type = "remove";
+    else if (/\.(css|scss)$/i.test(files)) type = "style";
+    else if (/\.(js|ts)$/i.test(files)) type = "feat";
+    else if (/\.(html)$/i.test(files)) type = "feat";
+    else if (/\.json/i.test(files)) type = "config";
 
-    // 🧠 AI PROMPT (clean + strict)
+    // 🧠 AI MESSAGE
     const prompt = `
-Write a git commit message.
+Write a human-like git commit message.
 
 Rules:
 - max 6 words
 - lowercase
 - prefix: ${type}
-- no symbols except :
-- clean and meaningful
+- meaningful
+- based on changes
 
 Files:
 ${files}
@@ -65,7 +55,6 @@ ${diff}
       { encoding: "utf-8" }
     ).trim();
 
-    // 🔥 CLEAN OUTPUT HARD
     let message = ai.split("\n")[0]
       .replace(/[^a-z0-9: ]/gi, "")
       .replace(/\s+/g, " ")
@@ -76,20 +65,19 @@ ${diff}
       message = `${type}: update code`;
     }
 
-    // 🚫 avoid duplicate
+    // 🚨 FORCE UNIQUE MESSAGE
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
     } catch {}
 
     if (message === last) {
-      console.log("Skipped duplicate");
-      return;
+      const time = new Date().toLocaleTimeString().replace(/:/g, "");
+      message = message + " " + time; // 🔥 make unique
     }
 
     run(`git commit -m "${message}"`);
 
-    // 🔥 push safe (auto fix)
     const branch = run("git rev-parse --abbrev-ref HEAD");
 
     try {
