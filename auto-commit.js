@@ -9,48 +9,54 @@ function run(cmd) {
 
 (async () => {
   try {
-    // 🔥 detect delete + update সব
+    console.log("🚀 AUTO COMMIT RUNNING...");
+
+    // 🔥 stage everything (important)
     run("git add -A");
 
     const diffFull = run("git diff --cached");
-    if (!diffFull) return;
+    if (!diffFull) {
+      console.log("No changes");
+      return;
+    }
 
     const diff = diffFull.slice(0, 600);
     const files = run("git diff --cached --name-only");
 
-    // 🧠 STEP 1: heuristic detect
+    // 🧠 SMART TYPE DETECTION
     let type = "fix";
 
-    if (diff.includes("background") || files.includes(".css")) {
+    if (/\.(css|scss|sass)$/i.test(files)) {
       type = "style";
     }
-    else if (diff.includes("function") || files.includes(".js")) {
+    else if (/\.(js|ts)$/i.test(files)) {
       type = "feat";
     }
-    else if (diff.includes("error") || diff.includes("fix")) {
+    else if (/error|bug|fix/i.test(diff)) {
       type = "fix";
     }
-    else if (files.includes(".json")) {
+    else if (/\.json/i.test(files)) {
       type = "config";
     }
-    else if (files.includes(".md")) {
+    else if (/\.md/i.test(files)) {
       type = "docs";
     }
 
-    // 🧠 STEP 2: AI refine message
+    // 🧠 AI PROMPT (clean + strict)
     const prompt = `
-Generate a git commit message.
+Write a git commit message.
 
 Rules:
-- max 7 words
+- max 6 words
 - lowercase
 - prefix: ${type}
-- meaningful and specific
+- no symbols except :
+- clean and meaningful
 
-Changed files:
+Files:
 ${files}
 
-Code diff:
+Changes:
 ${diff}
 `;
 
@@ -59,6 +65,7 @@ ${diff}
       { encoding: "utf-8" }
     ).trim();
 
+    // 🔥 CLEAN OUTPUT HARD
     let message = ai.split("\n")[0]
       .replace(/[^a-z0-9: ]/gi, "")
       .replace(/\s+/g, " ")
@@ -69,18 +76,22 @@ ${diff}
       message = `${type}: update code`;
     }
 
-    // 🚫 duplicate avoid
+    // 🚫 avoid duplicate
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
     } catch {}
 
-    if (message === last) return;
+    if (message === last) {
+      console.log("Skipped duplicate");
+      return;
+    }
 
     run(`git commit -m "${message}"`);
 
-    // 🔥 push safe
+    // 🔥 push safe (auto fix)
     const branch = run("git rev-parse --abbrev-ref HEAD");
+
     try {
       run(`git push origin ${branch}`);
     } catch {
@@ -90,6 +101,6 @@ ${diff}
     console.log("✔", message);
 
   } catch (e) {
-    console.log("Error:", e.message);
+    console.log("❌ Error:", e.message);
   }
 })();
