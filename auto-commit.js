@@ -3,47 +3,29 @@ const { execSync } = require("child_process");
 function run(cmd) {
   return execSync(cmd, {
     encoding: "utf-8",
-    maxBuffer: 1024 * 1024 * 10
+    maxBuffer: 1024 * 1024 * 20
   }).trim();
 }
 
-// ⏱ delay (3 sec batching)
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
 (async () => {
   try {
-    // 🔥 wait (batch multiple saves)
-    await delay(3000);
-
+    // ⚡ NO DELAY (lightning mode)
     run("git add .");
 
-    const status = run("git diff --cached --name-status");
+    const diffFull = run("git diff --cached");
+    if (!diffFull) return;
 
-    if (!status) {
-      console.log("No changes");
-      process.exit(0);
-    }
+    const diff = diffFull.slice(0, 600);
 
-    const diff = run("git diff --cached").slice(0, 800);
-
-    // 🔥 detect type
-    let type = "fix";
-    if (status.includes("A")) type = "feat";
-    else if (status.includes("D")) type = "remove";
-    else if (status.includes("M")) type = "fix";
-
-    // 🔥 smart prompt
+    // 🧠 AI detect type automatically
     const prompt = `
-You are an expert developer.
-
-Generate a short git commit message.
+Analyze code changes and generate a git commit message.
 
 Rules:
-- max 8 words
+- max 7 words
 - lowercase
-- use prefix: ${type}
-- clear and meaningful
-- no symbols
+- prefix must be one of: feat, fix, style, refactor
+- choose type based on change meaning
 
 Changes:
 ${diff}
@@ -59,27 +41,42 @@ ${diff}
       .toLowerCase()
       .trim();
 
-    if (!message) message = `${type}: update code`;
+    if (!message) message = "fix: update code";
 
-    // 🔥 prevent duplicate spam
+    // 🚫 duplicate block
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
     } catch {}
 
-    if (message === last) {
-      console.log("Skipped duplicate commit");
-      process.exit(0);
-    }
+    if (message === last) return;
 
     run(`git commit -m "${message}"`);
-    run("git push");
 
-    console.log("Committed:", message);
+    // 🔥 smart push
+    let branch = "main";
+    try {
+      branch = run("git rev-parse --abbrev-ref HEAD");
+    } catch {}
+
+    try {
+      run(`git push origin ${branch}`);
+    } catch {
+      run(`git push -u origin ${branch}`);
+    }
+
+    // 📊 GRAPH (last 5 commits)
+    const graph = run("git log --oneline -5");
+
+    console.log("━━━━━━━━━━━━━━━━━━");
+    console.log("⚡ GOD MODE ACTIVE");
+    console.log("📂", process.cwd());
+    console.log("📝", message);
+    console.log("📊 Recent Commits:");
+    console.log(graph);
+    console.log("━━━━━━━━━━━━━━━━━━");
 
   } catch (e) {
-    console.error("Error:", e.message);
+    console.log("⚠️", e.message);
   }
 })();
-
-
