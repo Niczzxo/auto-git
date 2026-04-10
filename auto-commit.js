@@ -3,36 +3,20 @@ const { execSync } = require("child_process");
 function run(cmd) {
   return execSync(cmd, {
     encoding: "utf-8",
-    maxBuffer: 1024 * 1024 * 20
+    maxBuffer: 1024 * 1024 * 10
   }).trim();
 }
 
 (async () => {
   try {
-    // ⚡ NO DELAY (lightning mode)
     run("git add .");
 
-    const diffFull = run("git diff --cached");
-    if (!diffFull) return;
+    const diff = run("git diff --cached").slice(0, 500);
+    if (!diff) return;
 
-    const diff = diffFull.slice(0, 600);
-
-    // 🧠 AI detect type automatically
-    const prompt = `
-Analyze code changes and generate a git commit message.
-
-Rules:
-- max 7 words
-- lowercase
-- prefix must be one of: feat, fix, style, refactor
-- choose type based on change meaning
-
-Changes:
-${diff}
-`;
-
+    // 🧠 AI commit message
     const ai = execSync(
-      `ollama run tinyllama "${prompt}"`,
+      `ollama run tinyllama "write short meaningful git commit message (feat/fix/style): ${diff}"`,
       { encoding: "utf-8" }
     ).trim();
 
@@ -43,7 +27,7 @@ ${diff}
 
     if (!message) message = "fix: update code";
 
-    // 🚫 duplicate block
+    // 🚫 duplicate avoid
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
@@ -53,30 +37,17 @@ ${diff}
 
     run(`git commit -m "${message}"`);
 
-    // 🔥 smart push
-    let branch = "main";
-    try {
-      branch = run("git rev-parse --abbrev-ref HEAD");
-    } catch {}
-
+    // 🔥 AUTO PUSH FIXED
+    const branch = run("git rev-parse --abbrev-ref HEAD");
     try {
       run(`git push origin ${branch}`);
     } catch {
       run(`git push -u origin ${branch}`);
     }
 
-    // 📊 GRAPH (last 5 commits)
-    const graph = run("git log --oneline -5");
-
-    console.log("━━━━━━━━━━━━━━━━━━");
-    console.log("⚡ GOD MODE ACTIVE");
-    console.log("📂", process.cwd());
-    console.log("📝", message);
-    console.log("📊 Recent Commits:");
-    console.log(graph);
-    console.log("━━━━━━━━━━━━━━━━━━");
+    console.log("✔", message);
 
   } catch (e) {
-    console.log("⚠️", e.message);
+    console.log("Error:", e.message);
   }
 })();
