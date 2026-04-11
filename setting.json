@@ -1,0 +1,148 @@
+{
+  "editor.copyWithSyntaxHighlighting": false,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.emptySelectionClipboard": false,
+  "workbench.editor.enablePreview": false,
+  "window.newWindowDimensions": "inherit",
+  "editor.multiCursorModifier": "ctrlCmd",
+  "files.trimTrailingWhitespace": true,
+  "diffEditor.renderSideBySide": false,
+  "editor.snippetSuggestions": "top",
+  "editor.detectIndentation": false,
+  "window.nativeFullScreen": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "workbench.editor.showTabs": "multiple",
+  "editor.minimap.enabled": false,
+  "editor.lineNumbers": "on",
+  "editor.guides.indentation": false,
+
+  // Minimal UI
+  "breadcrumbs.enabled": false,
+  "scm.diffDecorations": "none",
+  "editor.hover.delay": 1500,
+  "editor.hover.enabled": "on",
+  "editor.matchBrackets": "never",
+  "workbench.editor.showIcons": false,
+  "workbench.tips.enabled": false,
+  "editor.colorDecorators": false,
+  "git.decorations.enabled": false,
+  "workbench.startupEditor": "none",
+  "editor.lightbulb.enabled": "off",
+  "editor.selectionHighlight": false,
+  "editor.overviewRulerBorder": false,
+  "editor.renderLineHighlight": "line",
+  "editor.occurrencesHighlight": "on",
+  "problems.decorations.enabled": false,
+  "editor.renderControlCharacters": false,
+  "editor.hideCursorInOverviewRuler": true,
+
+  // Typography (Ultra Compact)
+  "editor.fontFamily": "Geist Mono, JetBrains Mono, Fira Code",
+  "editor.fontSize": 13,
+  "editor.lineHeight": 20,
+  "editor.fontWeight": "300",
+  "editor.letterSpacing": 0,
+
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.lineHeight": 1.4,
+
+  // Tabs
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.editor.tabMinWidth": 80,
+  "workbench.editor.tabHeight": "compact",
+
+  // Sidebar
+  "workbench.tree.indent": 8,
+  "explorer.compactFolders": true,
+
+  // Activity Bar
+"workbench.activityBar.location": "top",
+  "workbench.activityBar.iconClickBehavior": "focus",
+
+  // Scroll + spacing
+  "editor.scrollbar.verticalScrollbarSize": 6,
+  "editor.scrollbar.horizontalScrollbarSize": 6,
+  "editor.scrollbar.useShadows": false,
+  "editor.padding.top": 6,
+
+  // Cursor
+  "editor.cursorBlinking": "solid",
+  "editor.cursorWidth": 1,
+  "editor.cursorSmoothCaretAnimation": "off",
+
+  // Suggest box
+  "editor.suggestFontSize": 14,
+  "editor.suggestLineHeight": 24,
+
+  // Search
+  "search.useIgnoreFiles": false,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/vendor/{[^l],?[^ai]}*": true,
+    "**/public/{[^i],?[^n]}*": true,
+    "**/_ide_helper.php": true,
+    "**/composer.lock": true,
+    "**/package-lock.json": true,
+    "storage": true,
+    ".phpunit.result.cache": true
+  },
+
+  // Formatting
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "apility.beautify-blade",
+    "editor.formatOnSave": true
+  },
+
+  // Word wrap
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+
+  // Git Auto Push
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.postCommitCommand": "push",
+
+  // Auto Commit Script
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": ".*",
+        "cmd": "node \"C:\\\\auto-git\\\\auto-commit.js\""
+      }
+    ]
+  },
+
+  // Theme
+  "workbench.colorTheme": "Vira Carbon High Contrast",
+  "workbench.iconTheme": "vira-icons-carbon",
+  "workbench.productIconTheme": "viraUIIcons",
+
+  // Extra Clean
+  "workbench.statusBar.visible": false,
+  "editor.stickyScroll.enabled": false,
+  "editor.renderWhitespace": "none",
+  "editor.smoothScrolling": true,
+
+  // Performance
+  "files.autoSave": "afterDelay",
+  "editor.mouseWheelZoom": true
+}
