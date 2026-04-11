@@ -123,13 +123,13 @@
 
   // Auto Commit Script
   "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": ".*",
-        "cmd": "node \"C:\\\\auto-git\\\\auto-commit.js\""
-      }
-    ]
-  },
+  "commands": [
+    {
+      "match": ".*",
+      "cmd": "node \"C:\\auto-git\\auto-commit.js\""
+    }
+  ]
+}
 
   // Theme
   "workbench.colorTheme": "Vira Carbon High Contrast",
