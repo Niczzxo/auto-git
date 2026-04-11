@@ -14,40 +14,33 @@ function run(cmd) {
     run("git add -A");
 
     const status = run("git diff --cached --name-status");
-    if (!status) {
-      console.log("No changes");
-      return;
-    }
+    if (!status) return;
 
-    const diff = run("git diff --cached").slice(0, 600);
+    const diff = run("git diff --cached").slice(0, 400);
     const files = run("git diff --cached --name-only");
 
-    // 🧠 TYPE DETECT (STRONG)
+    // 🧠 TYPE DETECT
     let type = "fix";
 
-    if (status.includes("A")) type = "feat"; // new file
+    if (status.includes("A")) type = "feat";
     else if (status.includes("D")) type = "remove";
-    else if (/\.(css|scss)$/i.test(files)) type = "style";
-    else if (/\.(js|ts)$/i.test(files)) type = "feat";
-    else if (/\.(html)$/i.test(files)) type = "feat";
-    else if (/\.json/i.test(files)) type = "config";
+    else if (files.match(/\.(css|scss)$/)) type = "style";
+    else if (files.match(/\.(js|ts)$/)) type = "feat";
+    else if (files.match(/\.html/)) type = "feat";
+    else if (files.match(/\.json/)) type = "config";
 
-    // 🧠 AI MESSAGE
+    // 🧠 BETTER PROMPT
     const prompt = `
-Write a human-like git commit message.
+Generate a git commit message based on changes.
 
 Rules:
 - max 6 words
 - lowercase
-- prefix: ${type}
-- meaningful
-- based on changes
+- prefix with ${type}
+- be specific (no "update code")
 
 Files:
 ${files}
-
-Changes:
-${diff}
 `;
 
     const ai = execSync(
@@ -61,19 +54,29 @@ ${diff}
       .toLowerCase()
       .trim();
 
-    if (!message || message.length < 5) {
-      message = `${type}: update code`;
+    // 🔥 SMART FALLBACK (NOT GENERIC)
+    if (!message || message.includes("update code")) {
+      const fileName = files.split("\n")[0];
+
+      if (fileName.includes(".html")) {
+        message = `${type}: add html structure`;
+      } else if (fileName.includes(".css")) {
+        message = `${type}: update ui styles`;
+      } else if (fileName.includes(".js")) {
+        message = `${type}: update logic`;
+      } else {
+        message = `${type}: update ${fileName}`;
+      }
     }
 
-    // 🚨 FORCE UNIQUE MESSAGE
+    // 🚫 duplicate fix
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
     } catch {}
 
     if (message === last) {
-      const time = new Date().toLocaleTimeString().replace(/:/g, "");
-      message = message + " " + time; // 🔥 make unique
+      message += " " + Date.now().toString().slice(-4);
     }
 
     run(`git commit -m "${message}"`);
