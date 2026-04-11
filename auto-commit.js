@@ -7,63 +7,38 @@ function run(cmd) {
   }).trim();
 }
 
-function detectType(diff, file) {
-  const lower = diff.toLowerCase();
-
-  if (lower.includes("fix") || lower.includes("error") || lower.includes("bug")) {
-    return "fix";
-  }
-
-  if (file.match(/\.(css|scss)$/) || lower.includes("style")) {
-    return "style";
-  }
-
-  if (lower.includes("refactor") || lower.includes("cleanup")) {
-    return "refactor";
-  }
-
-  if (file.match(/\.json/) || lower.includes("config")) {
-    return "chore";
-  }
-
-  return "feat";
-}
-
 (async () => {
   try {
-    console.log("🧠 TEAM LEVEL COMMIT...");
+    console.log("🧠 HUMAN AI COMMIT RUNNING...");
 
     run("git add -A");
 
     const diff = run("git diff --cached").slice(0, 1200);
-    if (!diff) return;
+    if (!diff) {
+      console.log("No changes");
+      return;
+    }
 
     const files = run("git diff --cached --name-only");
-    const firstFile = files.split("\n")[0];
 
-    const type = detectType(diff, firstFile);
-
-    // 🔥 TEAM LEVEL PROMPT
+    // 🔥 HUMAN STYLE PROMPT
     const prompt = `
-Write a professional git commit message.
+You are a senior developer.
 
-Format:
-title line + empty line + bullet points
+Write a human-like git commit message.
 
 Rules:
-- title: max 7 words
-- prefix with ${type}:
-- body: 2-3 bullet points
-- human readable
-- no unnecessary text
-- lowercase
+- short sentence (5–10 words)
+- explain what changed
+- natural language (like a human)
+- no symbols except spaces
+- lowercase only
+- no generic words like "update code"
 
-Example:
-feat: add login validation
-
-- validate email input
-- improve form handling
-- prevent invalid submission
+Examples:
+- add login page layout
+- fix navbar alignment on mobile
+- improve search performance logic
 
 Files:
 ${files}
@@ -77,31 +52,26 @@ ${diff}
       { encoding: "utf-8" }
     ).trim();
 
-    let lines = ai.split("\n");
-
-    let title = lines[0]
-      .replace(/[^a-z: ]/gi, "")
+    let message = ai.split("\n")[0]
+      .replace(/[^a-z ]/gi, "")
       .replace(/\s+/g, " ")
       .toLowerCase()
       .trim();
 
-    // 🔥 fallback title
-    if (!title || title.length < 5) {
-      const name = firstFile.split("/").pop().replace(/\.[^/.]+$/, "");
-      title = `${type}: update ${name}`;
+    // 🔥 SMART FALLBACK (human-like)
+    if (!message || message.length < 5) {
+      const firstFile = files.split("\n")[0];
+
+      if (firstFile.includes(".html")) {
+        message = "add new page structure";
+      } else if (firstFile.includes(".css")) {
+        message = "improve ui styling";
+      } else if (firstFile.includes(".js")) {
+        message = "update application logic";
+      } else {
+        message = `update ${firstFile}`;
+      }
     }
-
-    // 🔥 body (clean bullet lines)
-    let body = lines.slice(1)
-      .filter(line => line.trim().startsWith("-"))
-      .slice(0, 3)
-      .join("\n");
-
-    if (!body) {
-      body = `- update ${firstFile}`;
-    }
-
-    const message = `${title}\n\n${body}`;
 
     // 🚫 duplicate fix
     let last = "";
@@ -109,12 +79,11 @@ ${diff}
       last = run("git log -1 --pretty=%B");
     } catch {}
 
-    let finalMessage = message;
     if (message === last) {
-      finalMessage += `\n- update timestamp ${Date.now().toString().slice(-3)}`;
+      message += " " + Date.now().toString().slice(-3);
     }
 
-    run(`git commit -m "${finalMessage}"`);
+    run(`git commit -m "${message}"`);
 
     const branch = run("git rev-parse --abbrev-ref HEAD");
 
@@ -124,7 +93,7 @@ ${diff}
       run(`git push -u origin ${branch}`);
     }
 
-    console.log("✔ COMMITTED:\n", finalMessage);
+    console.log("✔", message);
 
   } catch (e) {
     console.log("❌ Error:", e.message);
