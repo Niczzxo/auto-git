@@ -13,23 +13,26 @@ function run(cmd) {
 
     run("git add -A");
 
-    const diff = run("git diff --cached").slice(0, 1200);
-    if (!diff) return;
+    const diff = run("git diff --cached").slice(0, 1000);
+    if (!diff) {
+      console.log("No changes");
+      return;
+    }
 
     const files = run("git diff --cached --name-only");
 
-    // 🔥 REAL AI PROMPT
+    // 🔥 STRICT PROMPT (VERY IMPORTANT)
     const prompt = `
-You are a senior software engineer.
+Write a git commit message.
 
-Analyze the code changes and write a git commit message.
-
-Rules:
-- human-like sentence
-- max 8 words
-- explain what changed AND why
-- no generic words like "update code"
+STRICT RULES:
+- max 6 words
+- single line only
+- no explanation
+- no names, no links, no numbers
+- no symbols except space
 - lowercase only
+- must describe change clearly
 
 Files:
 ${files}
@@ -43,24 +46,27 @@ ${diff}
       { encoding: "utf-8" }
     ).trim();
 
+    // 🔥 HARD CLEAN (anti-garbage)
     let message = ai.split("\n")[0]
-      .replace(/[^a-z0-9 ]/gi, "")
+      .replace(/[^a-z ]/gi, "")
       .replace(/\s+/g, " ")
       .toLowerCase()
       .trim();
 
+    // 🔥 fallback (SMART)
     if (!message || message.length < 5) {
-      message = "improve code logic";
+      const firstFile = files.split("\n")[0];
+      message = `update ${firstFile}`;
     }
 
-    // 🚫 avoid duplicate
+    // 🚫 duplicate fix
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
     } catch {}
 
     if (message === last) {
-      message += " " + Date.now().toString().slice(-4);
+      message += " " + Date.now().toString().slice(-3);
     }
 
     run(`git commit -m "${message}"`);
