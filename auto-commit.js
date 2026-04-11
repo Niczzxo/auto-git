@@ -16,60 +16,37 @@ function run(cmd) {
     const status = run("git diff --cached --name-status");
     if (!status) return;
 
-    const diff = run("git diff --cached").slice(0, 400);
-    const files = run("git diff --cached --name-only");
+    const files = run("git diff --cached --name-only").split("\n");
 
-    // 🧠 TYPE DETECT
-    let type = "fix";
+    // 🔥 detect action
+    let action = "update";
+    if (status.includes("A")) action = "add";
+    else if (status.includes("D")) action = "remove";
 
-    if (status.includes("A")) type = "feat";
-    else if (status.includes("D")) type = "remove";
-    else if (files.match(/\.(css|scss)$/)) type = "style";
-    else if (files.match(/\.(js|ts)$/)) type = "feat";
-    else if (files.match(/\.html/)) type = "feat";
-    else if (files.match(/\.json/)) type = "config";
+    // 🔥 generate smart message from file
+    const messages = files.map(file => {
+      const name = file.split("/").pop();
 
-    // 🧠 BETTER PROMPT
-    const prompt = `
-Generate a git commit message based on changes.
-
-Rules:
-- max 6 words
-- lowercase
-- prefix with ${type}
-- be specific (no "update code")
-
-Files:
-${files}
-`;
-
-    const ai = execSync(
-      `ollama run tinyllama "${prompt}"`,
-      { encoding: "utf-8" }
-    ).trim();
-
-    let message = ai.split("\n")[0]
-      .replace(/[^a-z0-9: ]/gi, "")
-      .replace(/\s+/g, " ")
-      .toLowerCase()
-      .trim();
-
-    // 🔥 SMART FALLBACK (NOT GENERIC)
-    if (!message || message.includes("update code")) {
-      const fileName = files.split("\n")[0];
-
-      if (fileName.includes(".html")) {
-        message = `${type}: add html structure`;
-      } else if (fileName.includes(".css")) {
-        message = `${type}: update ui styles`;
-      } else if (fileName.includes(".js")) {
-        message = `${type}: update logic`;
-      } else {
-        message = `${type}: update ${fileName}`;
+      if (file.endsWith(".html")) {
+        return `feat: ${action} ${name} structure`;
       }
-    }
+      if (file.endsWith(".css")) {
+        return `style: ${action} ${name} styles`;
+      }
+      if (file.endsWith(".js")) {
+        return `feat: ${action} ${name} logic`;
+      }
+      if (file.endsWith(".json")) {
+        return `config: ${action} ${name}`;
+      }
 
-    // 🚫 duplicate fix
+      return `fix: ${action} ${name}`;
+    });
+
+    // 🔥 join multiple files
+    let message = messages[0];
+
+    // 🚫 avoid duplicate
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
