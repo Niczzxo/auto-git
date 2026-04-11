@@ -1,83 +1,59 @@
 const { execSync } = require("child_process");
-const path = require("path");
 
 function run(cmd) {
   return execSync(cmd, {
     encoding: "utf-8",
-    maxBuffer: 1024 * 1024 * 10
+    maxBuffer: 1024 * 1024 * 20
   }).trim();
-}
-
-function humanize(file) {
-  return path.basename(file)
-    .replace(/\.[^/.]+$/, "")
-    .replace(/[-_]/g, " ");
-}
-
-function detectContext(diff, file) {
-  const lower = diff.toLowerCase();
-
-  // 🧠 detect intent
-  if (lower.includes("color") || lower.includes("style") || file.match(/\.(css|scss)$/)) {
-    return "update ui design";
-  }
-
-  if (lower.includes("function") || lower.includes("return") || file.match(/\.(js|ts)$/)) {
-    return "update logic";
-  }
-
-  if (lower.includes("error") || lower.includes("fix") || lower.includes("bug")) {
-    return "fix issue";
-  }
-
-  if (lower.includes("api") || lower.includes("fetch")) {
-    return "update api handling";
-  }
-
-  if (lower.includes("config") || file.match(/\.json/)) {
-    return "update configuration";
-  }
-
-  return "update code";
 }
 
 (async () => {
   try {
-    console.log("🚀 SMART AUTO COMMIT...");
+    console.log("🧠 DEEP AI COMMIT RUNNING...");
 
     run("git add -A");
 
-    const status = run("git diff --cached --name-status");
-    if (!status) return;
+    const diff = run("git diff --cached").slice(0, 1200);
+    if (!diff) return;
 
-    const diff = run("git diff --cached").slice(0, 800);
-    const lines = status.split("\n");
+    const files = run("git diff --cached --name-only");
 
-    const messages = lines.map(line => {
-      const parts = line.trim().split(/\s+/);
-      const code = parts[0];
-      const file = parts[parts.length - 1];
+    // 🔥 REAL AI PROMPT
+    const prompt = `
+You are a senior software engineer.
 
-      const name = humanize(file);
-      const context = detectContext(diff, file);
+Analyze the code changes and write a git commit message.
 
-      let action = "update";
+Rules:
+- human-like sentence
+- max 8 words
+- explain what changed AND why
+- no generic words like "update code"
+- lowercase only
 
-      if (code === "A") action = "add";
-      else if (code === "D") action = "remove";
-      else if (code === "R") action = "rename";
+Files:
+${files}
 
-      // 🔥 human + context based message
-      return `${action} ${name} ${context}`;
-    });
+Changes:
+${diff}
+`;
 
-    let message = messages[0];
+    const ai = execSync(
+      `ollama run phi3 "${prompt}"`,
+      { encoding: "utf-8" }
+    ).trim();
 
-    if (messages.length > 1) {
-      message += ` and ${messages.length - 1} more updates`;
+    let message = ai.split("\n")[0]
+      .replace(/[^a-z0-9 ]/gi, "")
+      .replace(/\s+/g, " ")
+      .toLowerCase()
+      .trim();
+
+    if (!message || message.length < 5) {
+      message = "improve code logic";
     }
 
-    // 🚫 avoid same message
+    // 🚫 avoid duplicate
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
