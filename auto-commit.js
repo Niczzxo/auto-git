@@ -9,11 +9,11 @@ function run(cmd) {
 
 (async () => {
   try {
-    console.log("🧠 DEEP AI COMMIT RUNNING...");
+    console.log("🧠 HUMAN AI COMMIT RUNNING...");
 
     run("git add -A");
 
-    const diff = run("git diff --cached").slice(0, 1000);
+    const diff = run("git diff --cached").slice(0, 1200);
     if (!diff) {
       console.log("No changes");
       return;
@@ -21,18 +21,24 @@ function run(cmd) {
 
     const files = run("git diff --cached --name-only");
 
-    // 🔥 STRICT PROMPT (VERY IMPORTANT)
+    // 🔥 HUMAN STYLE PROMPT
     const prompt = `
-Write a git commit message.
+You are a senior developer.
 
-STRICT RULES:
-- max 6 words
-- single line only
-- no explanation
-- no names, no links, no numbers
-- no symbols except space
+Write a human-like git commit message.
+
+Rules:
+- short sentence (5–10 words)
+- explain what changed
+- natural language (like a human)
+- no symbols except spaces
 - lowercase only
-- must describe change clearly
+- no generic words like "update code"
+
+Examples:
+- add login page layout
+- fix navbar alignment on mobile
+- improve search performance logic
 
 Files:
 ${files}
@@ -46,17 +52,25 @@ ${diff}
       { encoding: "utf-8" }
     ).trim();
 
-    // 🔥 HARD CLEAN (anti-garbage)
     let message = ai.split("\n")[0]
       .replace(/[^a-z ]/gi, "")
       .replace(/\s+/g, " ")
       .toLowerCase()
       .trim();
 
-    // 🔥 fallback (SMART)
+    // 🔥 SMART FALLBACK (human-like)
     if (!message || message.length < 5) {
       const firstFile = files.split("\n")[0];
-      message = `update ${firstFile}`;
+
+      if (firstFile.includes(".html")) {
+        message = "add new page structure";
+      } else if (firstFile.includes(".css")) {
+        message = "improve ui styling";
+      } else if (firstFile.includes(".js")) {
+        message = "update application logic";
+      } else {
+        message = `update ${firstFile}`;
+      }
     }
 
     // 🚫 duplicate fix
