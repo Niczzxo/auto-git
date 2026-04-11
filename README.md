@@ -1,42 +1,31 @@
 # 🚀 AI-Powered Git Auto Commit & Push System (Full Guide)
 
-## 🧠 Overview
+---
 
-এই system একটা **fully automated Git workflow**, যেখানে:
+# 🧠 Overview
 
-👉 তুমি শুধু code লিখবা
-👉 save দিবা
-👉 automatically:
+এই system automatically:
 
-* changes detect হবে
-* AI commit message generate করবে
-* commit হবে
-* GitHub এ push হয়ে যাবে
+✔ code change detect করে
+✔ AI দিয়ে commit message বানায়
+✔ auto commit করে
+✔ auto push করে
 
-✔ কোনো manual git command লাগবে না
+👉 শুধু code লিখো + save দাও = DONE
 
 ---
 
 # 🤖 AI Used
 
-এই project এ ব্যবহার করা হয়েছে:
+### 🟢 Main AI
 
-### 🟢 Primary AI
-
-* **phi3 (Ollama model)**
-  👉 human-like commit message generate করে
-
-### 🟡 Optional (backup)
-
-* tinyllama (low quality, recommend না)
+* **phi3 (Ollama)** → human-like commit message
 
 ---
 
-# ⚙️ INSTALLATION (A to Z)
+# ⚙️ INSTALLATION
 
 ## 1️⃣ Install Ollama
-
-PowerShell এ run করো:
 
 ```bash
 irm https://ollama.com/install.ps1 | iex
@@ -50,65 +39,54 @@ irm https://ollama.com/install.ps1 | iex
 ollama pull phi3
 ```
 
-✔ এইটাই main AI model
-
 ---
 
-## 3️⃣ Test AI
+## 3️⃣ Run AI (Test)
 
 ```bash
 ollama run phi3
 ```
 
-type করো:
+👉 তারপর লিখো:
 
-```
+```text
 write a git commit message for fixing navbar alignment
 ```
 
-✔ যদি output আসে → সব ঠিক
+✔ output আসলে AI ready
 
 ---
 
-# 📁 PROJECT STRUCTURE
+## ❌ Remove Model (optional)
+
+```bash
+ollama rm phi3
+```
+
+---
+
+# 📁 FILE STRUCTURE
 
 ```text
 C:\auto-git\
-  └── auto-commit.js   (main script)
+  ├── auto-commit.js
+  └── watcher.js
 ```
 
 ---
 
-# ⚡ SCRIPT কী করে?
+# ⚡ SYSTEM WORKFLOW
 
-1. সব file detect করে:
-
-```bash
-git add -A
-```
-
-2. diff নেয়:
-
-```bash
-git diff --cached
-```
-
-3. AI কে দেয়
-
-4. AI commit message বানায়
-
-5. auto:
-
-```bash
-git commit
-git push
-```
+1. detect changes
+2. AI generate message
+3. auto commit
+4. auto push
 
 ---
 
 # ▶️ RUN SYSTEM
 
-## Manual Run
+## 🔥 Manual Run
 
 ```bash
 node C:\auto-git\auto-commit.js
@@ -116,44 +94,26 @@ node C:\auto-git\auto-commit.js
 
 ---
 
-## 🔥 Auto Run (BEST)
+## 👀 Auto Watch Mode (BEST)
 
-VS Code → settings.json এ add করো:
+👉 run this:
 
-```json
-"emeraldwalk.runonsave": {
-  "commands": [
-    {
-      "match": ".*",
-      "cmd": "node \"C:\\auto-git\\auto-commit.js\""
-    }
-  ]
-}
+```bash
+node C:\auto-git\watcher.js
 ```
 
-✔ এখন save দিলেই auto commit + push
+👉 এটা প্রতি 2 second এ check করবে
+👉 file copy / delete / change সব detect করবে
 
 ---
 
 # 🧩 REQUIRED EXTENSIONS
 
-VS Code এ install করো:
-
-### ✅ Required
-
-* **Run On Save (emeraldwalk.runonsave)**
+✔ Run On Save
 
 ---
 
-### ❌ REMOVE THESE (conflict avoid)
-
-* git-auto-commit
-* commitizen
-* অন্য auto git extension
-
----
-
-# ⚙️ settings.json FULL CONFIG
+# ⚙️ settings.json
 
 ```json
 {
@@ -174,21 +134,17 @@ VS Code এ install করো:
 
 ---
 
-# 📦 SOURCE CONTROL (Git) USE
+# 📦 SOURCE CONTROL (Git)
 
-## 🔓 Open Source Control
+## Open Source Control
 
-👉 VS Code shortcut:
-
-```
+```text
 Ctrl + Shift + G
 ```
 
-👉 বা sidebar এ Git icon
-
 ---
 
-## 🟢 Enable Git (if needed)
+## Init Repo
 
 ```bash
 git init
@@ -196,134 +152,114 @@ git init
 
 ---
 
-## 🔗 Connect GitHub
+## Connect GitHub
 
 ```bash
 git remote add origin https://github.com/USERNAME/REPO.git
 git push -u origin main
 ```
 
-👉 একবার করলেই future auto push হবে
-
 ---
 
-# 🔄 WHAT SYSTEM SUPPORTS
+# 🔄 WHAT IT SUPPORTS
 
-✔ file create
-✔ file update
-✔ file delete
-✔ file rename
-✔ folder change
-✔ ANY file type
-
-👉 সব automatically commit + push হবে
+✔ create file
+✔ update file
+✔ delete file
+✔ rename
+✔ copy file
+✔ any file type
 
 ---
 
 # ✍️ COMMIT STYLE
 
-## 🟢 Example:
-
-```
+```text
 add login page layout
 fix navbar alignment on mobile
-improve search result performance
-update api request handling logic
+improve search performance logic
 ```
 
-✔ human-like
-✔ meaningful
-✔ short
-
 ---
 
-# 🧠 FEATURES
+# ⚠️ IMPORTANT
 
-✔ AI commit message
-✔ auto commit
-✔ auto push
-✔ duplicate prevent
-✔ fallback system
-✔ future-proof
+👉 save দিলে RunOnSave কাজ করে
+👉 কিন্তু file copy করলে trigger হয় না
 
----
-
-# ⚠️ IMPORTANT NOTES
-
-👉 file copy করলে VS Code save trigger হয় না
-👉 তাই মাঝে মাঝে manual run দরকার:
+👉 তাই watcher ব্যবহার করো:
 
 ```bash
-node C:\auto-git\auto-commit.js
+node C:\auto-git\watcher.js
 ```
 
 ---
 
-# 📤 HOW OTHERS CAN USE THIS
+# 📤 HOW OTHERS CAN USE
 
-## Steps:
-
-1. এই project copy করো
-2. install:
-
-   ```bash
-   ollama pull phi3
-   ```
-3. script place করো:
-
-   ```
-   C:\auto-git\auto-commit.js
-   ```
-4. VS Code setting add করো
-5. Git setup করো:
+1. project copy করো
+2. install ollama
+3. run:
 
 ```bash
-git init
-git remote add origin <repo>
-git push -u origin main
+ollama pull phi3
 ```
+
+4. script place করো
+5. settings add করো
+6. git setup করো
 
 ---
 
 # 🚀 FINAL WORKFLOW
 
-👉 তুমি যা করবা:
+👉 code → save
 
-1. code লিখবা
-2. save দিবা
+👉 auto:
 
-👉 বাকিটা automatic:
-
-✔ commit ✔
-✔ message ✔
-✔ push ✔
+✔ commit
+✔ message
+✔ push
 
 ---
 
 # 😎 SUMMARY
 
-এই system basically:
+👉 manual git দরকার নাই
 
-👉 **"write code → save → done"**
-
----
-
-# 🔥 FUTURE UPGRADE (OPTIONAL)
-
-* CI/CD
-* auto deploy
-* PR automation
-* branch protection
-* team workflow
+👉 everything automated
 
 ---
 
-## 👨‍💻 Built System
+# 🔥 COMMAND SUMMARY
 
-👉 custom AI Git automation
-👉 local AI powered
-👉 no API needed
+```bash
+# install AI
+ollama pull phi3
+
+# run AI
+ollama run phi3
+
+# remove AI
+ollama rm phi3
+
+# manual commit run
+node C:\auto-git\auto-commit.js
+
+# auto watcher
+node C:\auto-git\watcher.js
+```
 
 ---
 
-**Enjoy automated development 🚀**
+# 🎯 FINAL
+
+👉 তুমি এখন use করতেছো:
+
+✔ local AI
+✔ auto git system
+✔ zero manual workflow
+
+---
+
+**🔥 enjoy fully automated coding**
