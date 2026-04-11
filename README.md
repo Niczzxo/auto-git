@@ -1,4 +1,4 @@
-# 🚀 AI-Powered Git Auto Commit & Push System (Full Guide)
+# 🚀 AI-Powered Git Auto Commit & Push System
 
 ---
 
@@ -11,19 +11,70 @@
 ✔ auto commit করে
 ✔ auto push করে
 
-👉 শুধু code লিখো + save দাও = DONE
+👉 শুধু code লিখো + save = DONE 🔥
 
 ---
 
-# 🤖 AI Used
+# 🤖 AI Models (Ollama)
 
-### 🟢 Main AI
+## 🟢 Supported Models
 
-* **phi3 (Ollama)** → human-like commit message
+### 🔹 Phi-3 (High Quality)
+
+* 🧠 Best commit messages
+* ❌ Requires ~3.5GB+ RAM
+
+```bash
+ollama pull phi3
+```
 
 ---
 
-# ⚙️ INSTALLATION
+### 🔹 TinyLlama (Recommended ✅)
+
+* ⚡ Fast & lightweight
+* ✅ Works on low-end PC (~1GB RAM)
+* 🔥 Best for most users
+
+```bash
+ollama pull tinyllama
+```
+
+---
+
+### 🔹 Mistral (Advanced)
+
+* 🧠 Better reasoning
+* ⚠ Needs 4–6GB RAM
+
+```bash
+ollama pull mistral
+```
+
+---
+
+### 🔹 LLaMA 3 (High-End)
+
+* 🚀 Very powerful
+* ❌ Needs 8GB+ RAM
+
+```bash
+ollama pull llama3
+```
+
+---
+
+# 🖥️ Which Model Should You Use?
+
+| PC Type         | Recommended Model |
+| --------------- | ----------------- |
+| 4GB RAM or less | tinyllama ✅       |
+| 6–8GB RAM       | phi3              |
+| 8GB+ RAM        | mistral / llama3  |
+
+---
+
+# ⚙️ Installation
 
 ## 1️⃣ Install Ollama
 
@@ -36,46 +87,44 @@ irm https://ollama.com/install.ps1 | iex
 ## 2️⃣ Install AI Model
 
 ```bash
-ollama pull phi3
+ollama pull tinyllama
 ```
 
 ---
 
-## 3️⃣ Run AI (Test)
+## 3️⃣ Test AI
 
 ```bash
-ollama run phi3
+ollama run tinyllama
 ```
 
-👉 তারপর লিখো:
+Example:
 
-```text
+```
 write a git commit message for fixing navbar alignment
 ```
 
-✔ output আসলে AI ready
-
 ---
 
-## ❌ Remove Model (optional)
+## ❌ Remove Model
 
 ```bash
-ollama rm phi3
+ollama rm tinyllama
 ```
 
 ---
 
-# 📁 FILE STRUCTURE
+# 📁 File Structure
 
-```text
+```
 C:\auto-git\
   ├── auto-commit.js
-  └── watcher.js
+  ├── watcher.js
 ```
 
 ---
 
-# ⚡ SYSTEM WORKFLOW
+# ⚡ System Workflow
 
 1. detect changes
 2. AI generate message
@@ -84,9 +133,9 @@ C:\auto-git\
 
 ---
 
-# ▶️ RUN SYSTEM
+# ▶️ Run System
 
-## 🔥 Manual Run
+## 🔥 Manual
 
 ```bash
 node C:\auto-git\auto-commit.js
@@ -96,20 +145,18 @@ node C:\auto-git\auto-commit.js
 
 ## 👀 Auto Watch Mode (BEST)
 
-👉 run this:
-
 ```bash
 node C:\auto-git\watcher.js
 ```
 
-👉 এটা প্রতি 2 second এ check করবে
-👉 file copy / delete / change সব detect করবে
+👉 checks every 2 seconds
+👉 detects all file changes
 
 ---
 
-# 🧩 REQUIRED EXTENSIONS
+# 🧩 Required Extension
 
-✔ Run On Save
+✔ Run On Save (VS Code)
 
 ---
 
@@ -134,17 +181,9 @@ node C:\auto-git\watcher.js
 
 ---
 
-# 📦 SOURCE CONTROL (Git)
+# 📦 Git Setup
 
-## Open Source Control
-
-```text
-Ctrl + Shift + G
-```
-
----
-
-## Init Repo
+## Init Repository
 
 ```bash
 git init
@@ -161,20 +200,20 @@ git push -u origin main
 
 ---
 
-# 🔄 WHAT IT SUPPORTS
+# 🔄 Supported Actions
 
 ✔ create file
 ✔ update file
 ✔ delete file
-✔ rename
+✔ rename file
 ✔ copy file
 ✔ any file type
 
 ---
 
-# ✍️ COMMIT STYLE
+# ✍️ Commit Style
 
-```text
+```
 add login page layout
 fix navbar alignment on mobile
 improve search performance logic
@@ -182,12 +221,12 @@ improve search performance logic
 
 ---
 
-# ⚠️ IMPORTANT
+# ⚠️ Important Notes
 
-👉 save দিলে RunOnSave কাজ করে
-👉 কিন্তু file copy করলে trigger হয় না
+👉 Save করলে RunOnSave trigger হয়
+👉 File copy করলে trigger হয় না
 
-👉 তাই watcher ব্যবহার করো:
+👉 Solution:
 
 ```bash
 node C:\auto-git\watcher.js
@@ -195,27 +234,48 @@ node C:\auto-git\watcher.js
 
 ---
 
-# 📤 HOW OTHERS CAN USE
-
-1. project copy করো
-2. install ollama
-3. run:
+# 🔥 Best Setup (Recommended)
 
 ```bash
-ollama pull phi3
+ollama pull tinyllama
 ```
 
-4. script place করো
-5. settings add করো
-6. git setup করো
+✔ stable
+✔ fast
+✔ low RAM
 
 ---
 
-# 🚀 FINAL WORKFLOW
+# 🚀 Advanced (Optional)
+
+Change model in script:
+
+```js
+const model = "tinyllama"; // or phi3 / mistral
+```
+
+---
+
+# 📤 How Others Can Use
+
+1. Clone or copy project
+2. Install Ollama
+3. Run:
+
+```bash
+ollama pull tinyllama
+```
+
+4. Add scripts
+5. Setup git
+
+---
+
+# 🚀 Final Workflow
 
 👉 code → save
 
-👉 auto:
+👉 automatic:
 
 ✔ commit
 ✔ message
@@ -223,43 +283,50 @@ ollama pull phi3
 
 ---
 
-# 😎 SUMMARY
+# 😎 Summary
 
-👉 manual git দরকার নাই
-
-👉 everything automated
+👉 no manual git needed
+👉 fully automated
+👉 AI powered workflow
 
 ---
 
-# 🔥 COMMAND SUMMARY
+# 🔥 Command Summary
 
 ```bash
-# install AI
-ollama pull phi3
+# install model
+ollama pull tinyllama
 
 # run AI
-ollama run phi3
+ollama run tinyllama
 
-# remove AI
-ollama rm phi3
+# remove model
+ollama rm tinyllama
 
-# manual commit run
+# run commit
 node C:\auto-git\auto-commit.js
 
-# auto watcher
+# run watcher
 node C:\auto-git\watcher.js
 ```
 
 ---
 
-# 🎯 FINAL
+# 🎯 Final
 
-👉 তুমি এখন use করতেছো:
+👉 You now have:
 
-✔ local AI
-✔ auto git system
-✔ zero manual workflow
+✔ Local AI
+✔ Auto Git system
+✔ Zero manual workflow
 
 ---
 
-**🔥 enjoy fully automated coding**
+## 🔥 Pro Tip
+
+👉 tinyllama = best for most users
+👉 phi3 = only if enough RAM
+
+---
+
+**🔥 Enjoy fully automated coding**
