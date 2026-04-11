@@ -35,6 +35,11 @@ Rules:
 - lowercase only
 - no generic words like update code
 
+Examples:
+- add login page layout
+- fix navbar alignment on mobile
+- improve search performance logic
+
 Files:
 ${files}
 
