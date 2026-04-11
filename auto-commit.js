@@ -35,7 +35,7 @@ function run(cmd) {
       else if (code === "M") action = "update";
 
       // 🔥 universal message
-      return `${action}: ${name} ${ext}`;
+      return `${action}: ${name}`;
     });
 
     // 🔥 combine message (first + count)
