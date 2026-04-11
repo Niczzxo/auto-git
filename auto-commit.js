@@ -3,8 +3,7 @@ const { execSync } = require("child_process");
 function run(cmd) {
   return execSync(cmd, {
     encoding: "utf-8",
-    maxBuffer: 1024 * 1024 * 20,
-    stdio: ["pipe", "pipe", "ignore"]
+    maxBuffer: 1024 * 1024 * 20
   }).trim();
 }
 
@@ -14,31 +13,35 @@ function run(cmd) {
 
     run("git add -A");
 
-    const diff = run("git diff --cached").slice(0, 1200);
-    if (!diff) {
-      console.log("No changes");
-      return;
+    let diff = "";
+    try {
+      diff = run("git diff --cached").slice(0, 1200);
+    } catch {
+      diff = "";
     }
 
     const files = run("git diff --cached --name-only");
 
-    const prompt = `
+    let message = "";
+
+    // 🔥 No changes → empty commit
+    if (!diff) {
+      console.log("⚠ No changes → creating empty commit");
+
+      message = "daily progress update";
+      run(`git commit --allow-empty -m "${message}"`);
+    } else {
+      const prompt = `
 You are a senior developer.
 
-Write a human-like git commit message.
+Write a git commit message.
 
 Rules:
-- short sentence (5–10 words)
-- explain what changed
-- natural language (like a human)
-- no symbols except spaces
+- 5 to 8 words only
 - lowercase only
-- no generic words like update code
-
-Examples:
-- add login page layout
-- fix navbar alignment on mobile
-- improve search performance logic
+- no symbols or punctuation
+- no words like feat fix chore
+- natural human sentence
 
 Files:
 ${files}
@@ -47,60 +50,70 @@ Changes:
 ${diff}
 `;
 
-    let ai = "";
+      let ai = "";
 
-    try {
-      // ✅ FIX: phi3 ➝ tinyllama (low RAM)
-      ai = execSync(
-        `ollama run tinyllama "${prompt.replace(/"/g, '\\"')}"`,
-        { encoding: "utf-8", timeout: 20000 }
-      ).trim();
-    } catch {
-      ai = "";
-    }
+      try {
+        const safePrompt = prompt.replace(/"/g, '\\"');
 
-    let message = ai.split("\n")[0]
-      .replace(/[^a-z ]/gi, "")
-      .replace(/\s+/g, " ")
-      .toLowerCase()
-      .trim();
+        // ✅ YOUR LINE (tinyllama AI)
+        ai = execSync(
+          `ollama run tinyllama "${safePrompt}"`,
+          { encoding: "utf-8", timeout: 20000 }
+        ).trim();
 
-    // 🔥 SMART FALLBACK (unchanged logic)
-    if (!message || message.length < 5) {
-      const firstFile = files.split("\n")[0];
-
-      if (firstFile.includes(".html")) {
-        message = "add new page structure";
-      } else if (firstFile.includes(".css")) {
-        message = "improve ui styling";
-      } else if (firstFile.includes(".js")) {
-        message = "update application logic";
-      } else {
-        message = `update ${firstFile}`;
+      } catch (e) {
+        console.log("⚠ AI failed, using fallback...");
+        ai = "";
       }
+
+      message = ai.split("\n")[0]
+        .replace(/[^a-z ]/g, "")
+        .replace(/\b(feat|fix|chore)\b/g, "")
+        .replace(/\s+/g, " ")
+        .toLowerCase()
+        .trim();
+
+      // 🔥 fallback (smart)
+      if (!message || message.length < 5) {
+        const firstFile = files.split("\n")[0] || "files";
+
+        if (firstFile.includes(".html")) {
+          message = "update page structure";
+        } else if (firstFile.includes(".css")) {
+          message = "improve ui styling";
+        } else if (firstFile.includes(".js")) {
+          message = "update application logic";
+        } else {
+          message = `update ${firstFile}`;
+        }
+      }
+
+      // 🚫 duplicate fix
+      let last = "";
+      try {
+        last = run("git log -1 --pretty=%B");
+      } catch {}
+
+      if (message === last) {
+        message += " " + Date.now().toString().slice(-3);
+      }
+
+      console.log("📦 committing:", message);
+      run(`git commit -m "${message}"`);
     }
-
-    // 🚫 duplicate fix (unchanged)
-    let last = "";
-    try {
-      last = run("git log -1 --pretty=%B");
-    } catch {}
-
-    if (message === last) {
-      message += " " + Date.now().toString().slice(-3);
-    }
-
-    run(`git commit -m "${message}"`);
 
     const branch = run("git rev-parse --abbrev-ref HEAD");
 
+    console.log("🚀 pushing to", branch);
+
     try {
-      run(`git push origin ${branch}`);
+      console.log(run(`git push origin ${branch}`));
     } catch {
-      run(`git push -u origin ${branch}`);
+      console.log("⚠ retrying with upstream...");
+      console.log(run(`git push -u origin ${branch}`));
     }
 
-    console.log("✔", message);
+    console.log("✔ DONE:", message);
 
   } catch (e) {
     console.log("❌ Error:", e.message);
