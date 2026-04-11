@@ -1,4 +1,5 @@
 const { execSync } = require("child_process");
+const path = require("path");
 
 function run(cmd) {
   return execSync(cmd, {
@@ -16,37 +17,35 @@ function run(cmd) {
     const status = run("git diff --cached --name-status");
     if (!status) return;
 
-    const files = run("git diff --cached --name-only").split("\n");
+    const lines = status.split("\n");
 
-    // 🔥 detect action
-    let action = "update";
-    if (status.includes("A")) action = "add";
-    else if (status.includes("D")) action = "remove";
+    const messages = lines.map(line => {
+      const parts = line.trim().split(/\s+/);
+      const code = parts[0]; // A / M / D / R
+      const file = parts[parts.length - 1];
 
-    // 🔥 generate smart message from file
-    const messages = files.map(file => {
-      const name = file.split("/").pop();
+      const name = path.basename(file);
+      const ext = path.extname(file).replace(".", "") || "file";
 
-      if (file.endsWith(".html")) {
-        return `feat: ${action} ${name} structure`;
-      }
-      if (file.endsWith(".css")) {
-        return `style: ${action} ${name} styles`;
-      }
-      if (file.endsWith(".js")) {
-        return `feat: ${action} ${name} logic`;
-      }
-      if (file.endsWith(".json")) {
-        return `config: ${action} ${name}`;
-      }
+      let action = "update";
 
-      return `fix: ${action} ${name}`;
+      if (code === "A") action = "add";
+      else if (code === "D") action = "remove";
+      else if (code === "R") action = "rename";
+      else if (code === "M") action = "update";
+
+      // 🔥 universal message
+      return `${action}: ${name} ${ext}`;
     });
 
-    // 🔥 join multiple files
+    // 🔥 combine message (first + count)
     let message = messages[0];
 
-    // 🚫 avoid duplicate
+    if (messages.length > 1) {
+      message += ` +${messages.length - 1} files`;
+    }
+
+    // 🚫 duplicate fix
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
