@@ -8,6 +8,18 @@ function run(cmd) {
   }).trim();
 }
 
+function humanizeName(file) {
+  let name = path.basename(file);
+
+  // remove extension
+  name = name.replace(/\.[^/.]+$/, "");
+
+  // replace - _ with space
+  name = name.replace(/[-_]/g, " ");
+
+  return name;
+}
+
 (async () => {
   try {
     console.log("🚀 AUTO COMMIT RUNNING...");
@@ -21,11 +33,10 @@ function run(cmd) {
 
     const messages = lines.map(line => {
       const parts = line.trim().split(/\s+/);
-      const code = parts[0]; // A / M / D / R
+      const code = parts[0];
       const file = parts[parts.length - 1];
 
-      const name = path.basename(file);
-      const ext = path.extname(file).replace(".", "") || "file";
+      const name = humanizeName(file);
 
       let action = "update";
 
@@ -34,15 +45,14 @@ function run(cmd) {
       else if (code === "R") action = "rename";
       else if (code === "M") action = "update";
 
-      // 🔥 universal message
-      return `${action}: ${name}`;
+      // 🔥 human style sentence
+      return `${action} ${name}`;
     });
 
-    // 🔥 combine message (first + count)
     let message = messages[0];
 
     if (messages.length > 1) {
-      message += ` +${messages.length - 1} files`;
+      message += ` and ${messages.length - 1} more changes`;
     }
 
     // 🚫 duplicate fix
