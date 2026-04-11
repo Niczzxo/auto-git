@@ -3,7 +3,8 @@ const { execSync } = require("child_process");
 function run(cmd) {
   return execSync(cmd, {
     encoding: "utf-8",
-    maxBuffer: 1024 * 1024 * 20
+    maxBuffer: 1024 * 1024 * 20,
+    stdio: ["pipe", "pipe", "ignore"]
   }).trim();
 }
 
@@ -21,7 +22,6 @@ function run(cmd) {
 
     const files = run("git diff --cached --name-only");
 
-    // 🔥 HUMAN STYLE PROMPT
     const prompt = `
 You are a senior developer.
 
@@ -33,12 +33,7 @@ Rules:
 - natural language (like a human)
 - no symbols except spaces
 - lowercase only
-- no generic words like "update code"
-
-Examples:
-- add login page layout
-- fix navbar alignment on mobile
-- improve search performance logic
+- no generic words like update code
 
 Files:
 ${files}
@@ -47,10 +42,17 @@ Changes:
 ${diff}
 `;
 
-    const ai = execSync(
-      `ollama run phi3 "${prompt}"`,
-      { encoding: "utf-8" }
-    ).trim();
+    let ai = "";
+
+    try {
+      // ✅ FIX: phi3 ➝ tinyllama (low RAM)
+      ai = execSync(
+        `ollama run tinyllama "${prompt.replace(/"/g, '\\"')}"`,
+        { encoding: "utf-8", timeout: 20000 }
+      ).trim();
+    } catch {
+      ai = "";
+    }
 
     let message = ai.split("\n")[0]
       .replace(/[^a-z ]/gi, "")
@@ -58,7 +60,7 @@ ${diff}
       .toLowerCase()
       .trim();
 
-    // 🔥 SMART FALLBACK (human-like)
+    // 🔥 SMART FALLBACK (unchanged logic)
     if (!message || message.length < 5) {
       const firstFile = files.split("\n")[0];
 
@@ -73,7 +75,7 @@ ${diff}
       }
     }
 
-    // 🚫 duplicate fix
+    // 🚫 duplicate fix (unchanged)
     let last = "";
     try {
       last = run("git log -1 --pretty=%B");
