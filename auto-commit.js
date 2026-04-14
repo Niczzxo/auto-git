@@ -2,8 +2,8 @@ const { execSync } = require("child_process");
 const axios = require("axios");
 
 // ✅ কনফিগারেশন
-const OPENROUTER_API_KEY = "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";
-const MODEL_NAME = "nvidia/nemotron-3-super-120b-a12b:free";
+const OPENROUTER_API_KEY = "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";
+const MODEL_NAME = "openai/gpt-oss-120b:free";
 
 function run(cmd) {
     try {
